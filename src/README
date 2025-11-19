@@ -1,0 +1,59 @@
+Task 1:
+    - In registrul ecx am copiat informatia din eax, pentru ca ulterior sa extragem id-ul din registrul (vor fi cei mai
+    importanti 8 biti din registru)
+    - Din registrul eax, l-am shift-at cu 8 biti spre stanga, 
+    respectiv spre dreapta pentru a elimina id-ul din registru 
+    si pentru a ramane doar cu locurile pe care furnica vrea sa le ocupe
+    - In registrul edx am mutat valoarea din ant_permissions aflata pe pozitia ecx * 4 
+    - In registrul edi am pus valoarea 1, care va avea rol de contor
+    - In registrul esi am salvat valoarea din eax, are rol de copie
+    - Am facut o operatie pe biti intre eax si edx, pentru a verifica daca permisiunile se potrivesc
+    - comparam valorile din esi si eax, in cazul in care valorile
+    sunt echivalente, vom pune la adresa lui ebx valoarea 1, altfel vom pune valoarea 0
+
+Task 3:
+    - treyfer_crypt :
+        - Am mutat in registrul ecx valoarea de la adresa lui num_rounds
+        - Am resetat valorile din eax si ebx pentru a folosi 
+        sub-registrele al si bl; al pentru parcurgere recursiva
+        iar bl este folosit initial pe post de text[0]
+        - Am parcurs fiecare pas pentru a crypta textul primit :
+            1. t = t + key[i]
+            2. t = sbox[t] + text[(i + 1) % 8]
+            3. t = (t << 1) | (t >> 7)
+            4. text[(i + 1) % 8 ] = t
+        - Am incrementat valoarea din al si apoi am reluat procesul, pana cand valoarea din al devine mai mare sau egala cu 8
+        - Am incheiat functia
+
+    - treyfer_decrypt :
+        - In registrele esi si edi am salvat textul, situat in stiva la adresa [ebp + 8], respectiv cheia de decriptare situata la adresa [ebp + 12]
+        - Am mutat in registrul ecx valoarea de la adresa lui num_rounds
+        - Am resetat valorile din registrele eax, ebx, edx; registrul bl este folosit pentru a crea un loop 
+        conditionat, dl este folosit pentru a reprezenta bottom  - ul din structura functiei de decriptare, iar al va 
+        reprezenta top - ul din structura functiei
+        - Am parcurs urmatorii pasi pentru a decripta textul primit :
+            1. top = text[i] + key[i]
+            2. top = sbox[top]
+            3. bottom = text[(i + 1) % 8]
+            4. bottom = (bottom << 1) | (bottom >> 7)
+            5. text[(i + 1) % 8] = bottom - top
+        - Am comparat valoarea din bl cu 0; Daca este egal cu 0, se incheie procesul de decriptare pentru primul caracter 
+        si se continua procesul de decriptare pentru restul de caractere, altfel se decrementeaza bl si se continua procesul de decriptare pentru acelasi caracter
+
+Task 4 :
+    - Resetam valorile din registrele eax si ebx; parcurgerea porneste din pozitia 0,0 
+    - Am decrementat valorile din ecx si edx, pentru a parcurge mai usor prin matrice
+    - Verificam daca am ajuns la marginea matricei ( pe linie sau pe coloana ); Daca se verifica conditia, sarim peste operatiile de parcurgere a matricei si ne pozitionam la sfarsitul functiei
+    - Altfel, mutam in registrul edi valoarea de la adresa [esi + eax * 4], reprezinta linia catre care va puncta
+    - La adresa de la edi + ebx punem valoarea '1', pentru a marca celula prin care am trecut
+    - Verificam daca la adresa de deasupra a celulei la care ne aflam se gaseste o valoare de 0, in caz afirmativ decrementam valoarea din registrul eax (verificam daca eax este prima linie din matrice)
+    - Verificam daca la adresa din stanga se afla o valoare de 0
+    [esi + eax * 4], daca da vom decrementa valoarea din ebx
+    (verificam daca ne situam la coloana 0 din matrice)
+    - Verificam daca la adresa de jos din matrice [esi + eax * 4 + 4] se gaseste o valoare de 0, in caz afirmativ incrementam valoarea din registrul eax
+    - Verificam daca la adresa din dreapta se afla o valoare de 0
+    [esi + eax * 4], in caz afirmativ incrementam valoarea din ebx
+    - In registrele ecx si edx vom muta valorile din eax, respectiv ebx
+    - Inregistrele eax si ebx vom pune valorile de la adresele
+    [ebp + 8], respectiv [ebp + 12]
+    - Mutam la adresele din registrele eax si ebx valorile din ecx, respectiv edx
